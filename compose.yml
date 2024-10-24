@@ -1,6 +1,5 @@
 services:
   notifier:
-    image: notifier
     restart: unless-stopped
     build:
       context: .
