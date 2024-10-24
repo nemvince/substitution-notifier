@@ -21,6 +21,7 @@ dotenv.load_dotenv()
 # Load configuration
 webhook_url = os.getenv("WEBHOOK_URL")
 target_class = os.getenv("TARGET_CLASS")
+refresh_interval = os.getenv("REFRESH_INTERVAL")
 
 if not webhook_url:
     logging.error("WEBHOOK_URL environment variable is not set.")
@@ -29,6 +30,11 @@ if not webhook_url:
 if not target_class:
     logging.error("TARGET_CLASS environment variable is not set.")
     exit(1)
+
+if not refresh_interval:
+    logging.error("REFRESH_INTERVAL environment variable is not set.")
+    exit(1)
+refresh_interval = int(refresh_interval)
 
 data_file = "/app/already_sent.pkl"
 
@@ -80,4 +86,4 @@ while True:
         logging.info(f"No new room changes for class out of {len(room_changes)} total, already sent {len(already_sent_room_changes)}.")
 
     save_data(data_file, already_sent_subs, already_sent_room_changes, already_sent_announcements)
-    time.sleep(60)
+    time.sleep(refresh_interval)
