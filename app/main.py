@@ -36,7 +36,8 @@ if not refresh_interval:
     exit(1)
 refresh_interval = int(refresh_interval)
 
-data_file = "/app/already_sent.pkl"
+data_dir = "/app/data"
+data_file = os.path.join(data_dir, "data.pkl")
 
 def load_data(file_path):
     if os.path.exists(file_path):

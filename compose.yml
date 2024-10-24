@@ -7,4 +7,4 @@ services:
       dockerfile: Dockerfile
     env_file: .env
     volumes:
-      - ./already_sent.pkl:/app/already_sent.pkl
+      - ./data:/app/data
