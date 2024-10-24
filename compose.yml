@@ -1,0 +1,9 @@
+services:
+  notifier:
+    image: notifier
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file: .env
+    volumes:
+      - ./already_sent.pkl:/app/already_sent.pkl
