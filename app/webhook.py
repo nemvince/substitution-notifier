@@ -7,6 +7,11 @@ def make_webhook(url):
     webhook.avatar_url = "https://helyettesites.petrik.hu/icon.png"
     return webhook
 
+def send_at_everyone(webhook_url):
+    webhook = make_webhook(webhook_url)
+    webhook.set_content("@everyone")
+    webhook.execute()
+
 def send_sub_embed(webhook_url, subs):
     for sub in subs:
         webhook = make_webhook(webhook_url)

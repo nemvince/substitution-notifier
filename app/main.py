@@ -6,7 +6,7 @@ import logging
 import time
 
 from sub import parse_schedule
-from webhook import send_sub_embed, send_room_change_embed, send_announcement_embed
+from webhook import send_sub_embed, send_room_change_embed, send_announcement_embed, send_at_everyone
 
 # Configure logging
 logging.basicConfig(
@@ -22,6 +22,7 @@ dotenv.load_dotenv()
 webhook_url = os.getenv("WEBHOOK_URL")
 target_class = os.getenv("TARGET_CLASS")
 refresh_interval = os.getenv("REFRESH_INTERVAL")
+ping_everyone = os.getenv("PING_EVERYONE")
 
 if not webhook_url:
     logging.error("WEBHOOK_URL environment variable is not set.")
@@ -35,6 +36,10 @@ if not refresh_interval:
     logging.error("REFRESH_INTERVAL environment variable is not set.")
     exit(1)
 refresh_interval = int(refresh_interval)
+
+if not ping_everyone:
+    logging.error("PING_EVERYONE environment variable is not set.")
+    exit(1)
 
 data_dir = "/app/data"
 data_file = os.path.join(data_dir, "data.pkl")
@@ -61,6 +66,17 @@ while True:
 
     class_announcements = [a for a in announcements if target_class in a.content]
     class_announcements = [a for a in class_announcements if a not in already_sent_announcements]
+
+    class_subs = [s for s in substitutions if target_class in s.class_group]
+    class_subs = [s for s in class_subs if s not in already_sent_subs]
+    
+    class_room_changes = [r for r in room_changes if target_class in r.class_group]
+    class_room_changes = [r for r in class_room_changes if r not in already_sent_room_changes]
+
+    if ping_everyone and (class_announcements or class_subs or class_room_changes):
+        logging.info("Pinging everyone.")
+        send_at_everyone(webhook_url)
+
     if class_announcements:
         logging.info(f"New announcements for class: {len(class_announcements)}")
         already_sent_announcements += class_announcements
@@ -68,8 +84,6 @@ while True:
     else:
         logging.info(f"No new announcements for class out of {len(announcements)} total, already sent {len(already_sent_announcements)}.")
 
-    class_subs = [s for s in substitutions if target_class in s.class_group]
-    class_subs = [s for s in class_subs if s not in already_sent_subs]
     if class_subs:
         logging.info(f"New substitutions for class: {len(class_subs)}")
         already_sent_subs += class_subs
@@ -77,8 +91,6 @@ while True:
     else:
         logging.info(f"No new substitutions for class out of {len(substitutions)} total, already sent {len(already_sent_subs)}.")
 
-    class_room_changes = [r for r in room_changes if target_class in r.class_group]
-    class_room_changes = [r for r in class_room_changes if r not in already_sent_room_changes]
     if class_room_changes:
         logging.info(f"New room changes for class: {len(class_room_changes)}")
         already_sent_room_changes += class_room_changes
